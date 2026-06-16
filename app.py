@@ -55,14 +55,37 @@ def erreur(msg):
     st.error(f"⚠️ {msg}")
 
 
+def champ_exemples(label, cle, exemples, defaut, help=None):
+    """Champ texte précédé d'un menu d'exemples qui le remplit dynamiquement.
+
+    `exemples` : dict {nom affiché: valeur à insérer}. L'utilisateur garde la
+    possibilité de taper librement (option « Saisie libre »).
+    """
+    st.session_state.setdefault(cle, defaut)
+    choix = st.selectbox("📋 Charger un exemple", ["✏️ Saisie libre"] + list(exemples),
+                         key=cle + "_ex")
+    if choix != "✏️ Saisie libre" and st.session_state.get(cle + "_last") != choix:
+        st.session_state[cle] = exemples[choix]
+        st.session_state[cle + "_last"] = choix
+    return st.text_input(label, key=cle, help=help)
+
+
 # --------------------------------------------------------------------------- #
 # Pages
 # --------------------------------------------------------------------------- #
 def page_une_variable():
     st.header("📈 Fonction à une variable  f(x)")
     st.caption("Domaine, dérivées, points critiques, asymptotes, nature des extrema.")
-    expr = st.text_input("f(x) =", value="x**3 - 3*x",
-                         help="Syntaxe Python/SymPy : **=puissance, sin(x), exp(x)…")
+    exemples = {
+        "Examen Exo I — f(x) = x³(x²−1)": "x**3*(x**2 - 1)",
+        "Examen Exo I — g(x) = x³−1+(x−1)²": "x**3 - 1 + (x - 1)**2",
+        "Polynôme x³ − 3x": "x**3 - 3*x",
+        "Rationnelle (x²−1)/(x−2)": "(x**2 - 1)/(x - 2)",
+        "Gaussienne exp(−x²)": "exp(-x**2)",
+        "Trigonométrique sin(x)": "sin(x)",
+    }
+    expr = champ_exemples("f(x) =", "f_1v", exemples, "x**3 - 3*x",
+                          help="Syntaxe : ** puissance, * produit, sin(x), exp(x)…")
     if not expr.strip():
         return
     try:
@@ -110,7 +133,14 @@ def page_deux_variables():
     st.header("🧊 Fonction à deux variables  f(x, y)")
     st.caption("Gradient, hessienne, nature des points critiques (test du déterminant, "
                "repli numérique si det = 0).")
-    expr = st.text_input("f(x, y) =", value="x**3 + y**3 - 3*x*y")
+    exemples = {
+        "Examen Exo II.I — x²+2y²+3xy−y+x": "x**2 + 2*y**2 + 3*x*y - y + x",
+        "Examen Exo II.II — x⁴+y⁴−x²y²−y² (7 pts)": "x**4 + y**4 - x**2*y**2 - y**2",
+        "Selle x³+y³−3xy": "x**3 + y**3 - 3*x*y",
+        "Paraboloïde x²+y² (min)": "x**2 + y**2",
+        "Selle x²−y²": "x**2 - y**2",
+    }
+    expr = champ_exemples("f(x, y) =", "f_2v", exemples, "x**3 + y**3 - 3*x*y")
     if not expr.strip():
         return
     try:
@@ -137,9 +167,23 @@ def page_deux_variables():
 def page_contrainte():
     st.header("🔗 Optimisation sous contrainte  (2 variables)")
     st.caption("Contrainte écrite g(x, y) = 0. Deux méthodes : Lagrange et substitution.")
+    exemples = {
+        "Examen Exo III — xy sous x²+y²=4": ("x*y", "x**2 + y**2 - 4"),
+        "Max xy sous x+y=10": ("x*y", "x + y - 10"),
+        "Min x²+y² sous x+y=1": ("x**2 + y**2", "x + y - 1"),
+        "Feuille 2 — x²y+2x²−2x−y+1 sous x−y=1": ("x**2*y + 2*x**2 - 2*x - y + 1",
+                                                  "x - y - 1"),
+    }
+    st.session_state.setdefault("c_obj", "x*y")
+    st.session_state.setdefault("c_contr", "x + y - 10")
+    choix = st.selectbox("📋 Charger un exemple", ["✏️ Saisie libre"] + list(exemples),
+                         key="c_ex")
+    if choix != "✏️ Saisie libre" and st.session_state.get("c_last") != choix:
+        st.session_state["c_obj"], st.session_state["c_contr"] = exemples[choix]
+        st.session_state["c_last"] = choix
     c1, c2 = st.columns(2)
-    objectif = c1.text_input("Objectif f(x, y) =", value="x*y")
-    contrainte = c2.text_input("Contrainte g(x, y) = 0, entrez g :", value="x + y - 10")
+    objectif = c1.text_input("Objectif f(x, y) =", key="c_obj")
+    contrainte = c2.text_input("Contrainte g(x, y) = 0, entrez g :", key="c_contr")
     methode = st.radio("Méthode", ["Lagrange", "Substitution", "Les deux (comparer)"],
                        horizontal=True)
     if not objectif.strip() or not contrainte.strip():
