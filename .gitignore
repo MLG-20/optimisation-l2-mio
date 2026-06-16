@@ -1,0 +1,19 @@
+# Environnement virtuel
+.venv/
+venv/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Graphiques générés
+*.html
+
+# Éditeurs
+.vscode/
+.idea/
+
+# Documents de cours (profs / examens) — non publiés
+TD_EXAMEN/
