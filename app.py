@@ -4,6 +4,8 @@ Lancement :  streamlit run app.py
 Réutilise les modules du package `analyse/`.
 """
 
+import re
+
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -47,8 +49,35 @@ def declarer_langue_francaise():
 # --------------------------------------------------------------------------- #
 # Utilitaires d'affichage
 # --------------------------------------------------------------------------- #
+_EXPOSANTS = {"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+              "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"}
+
+
+def jolifier(texte):
+    """Convertit la notation informatique en notation mathématique lisible :
+    sqrt → √, x**2 → x², a*b → a·b. (Affichage uniquement.)"""
+    texte = texte.replace("sqrt", "√")
+    # puissances entières : x**2 -> x², x**10 -> x¹⁰
+    texte = re.sub(r"\*\*(\d+)",
+                   lambda m: "".join(_EXPOSANTS[d] for d in m.group(1)), texte)
+    texte = texte.replace("**", "^")          # puissances restantes (ex. **(-1))
+    texte = texte.replace("*", "·")           # produit
+    texte = re.sub(r"√\((\w+)\)", r"√\1", texte)   # √(2) -> √2, √(x) -> √x
+    return texte
+
+
 def afficher_rapport(texte):
-    st.code(texte, language="text")
+    st.code(jolifier(texte), language="text")
+
+
+def afficher_graphe(fig, width="stretch"):
+    """Embellit le titre du graphique (sqrt → √, ** → exposant) puis l'affiche."""
+    try:
+        if fig.layout.title and fig.layout.title.text:
+            fig.update_layout(title=jolifier(fig.layout.title.text))
+    except Exception:  # noqa: BLE001
+        pass
+    st.plotly_chart(fig, width=width)
 
 
 def erreur(msg):
@@ -97,7 +126,7 @@ def page_une_variable():
     afficher_rapport(une_variable.rapport_texte(res))
     st.subheader("Graphique")
     try:
-        st.plotly_chart(affichage.figure_1d(res), width="stretch")
+        afficher_graphe(affichage.figure_1d(res), width="stretch")
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
@@ -124,7 +153,7 @@ def page_intervalle():
         m2.info(f"MAX absolu : f({res.maximum.abscisse}) = {res.maximum.valeur}")
     st.subheader("Graphique sur [a, b]")
     try:
-        st.plotly_chart(affichage.figure_intervalle(res), width="stretch")
+        afficher_graphe(affichage.figure_intervalle(res), width="stretch")
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
@@ -152,14 +181,14 @@ def page_deux_variables():
     afficher_rapport(deux_variables.rapport_texte(res))
     st.subheader("Graphique (surface 3D)")
     try:
-        st.plotly_chart(affichage.figure_2d(res), width="stretch")
+        afficher_graphe(affichage.figure_2d(res), width="stretch")
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
     st.subheader("Vue 2D — courbes de niveau")
     st.caption("Minimum = boucles qui se resserrent vers un creux ; maximum = vers "
                "un sommet ; point col = courbes en forme de selle qui se croisent.")
     try:
-        st.plotly_chart(affichage.figure_contour_2d(res), width="stretch")
+        afficher_graphe(affichage.figure_contour_2d(res), width="stretch")
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
@@ -206,7 +235,7 @@ def page_contrainte():
                "g = 0 (rouge), et les gradients ∇f (bleu) et ∇g (rouge) sont "
                "PARALLÈLES : c'est exactement la condition ∇f = λ·∇g de Lagrange.")
     try:
-        st.plotly_chart(affichage.figure_contrainte(res_lagr), width="stretch")
+        afficher_graphe(affichage.figure_contrainte(res_lagr), width="stretch")
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
@@ -224,7 +253,7 @@ def page_marginale():
                 st.subheader("Démarche détaillée")
                 afficher_rapport(marginal.rapport_marginal(res))
                 st.subheader("Graphique — f(x) et sa marginale f'(x)")
-                st.plotly_chart(marginal.figure_marginale(res), width="stretch")
+                afficher_graphe(marginal.figure_marginale(res), width="stretch")
         elif sous == "Coût moyen":
             C = st.text_input("Coût C(x)", value="x**2 + 16*x + 256")
             if C.strip():
@@ -232,7 +261,7 @@ def page_marginale():
                 st.subheader("Démarche détaillée")
                 afficher_rapport(marginal.rapport_cout_moyen(res))
                 st.subheader("Graphique — coût moyen et coût marginal")
-                st.plotly_chart(marginal.figure_cout_moyen(res), width="stretch")
+                afficher_graphe(marginal.figure_cout_moyen(res), width="stretch")
         else:
             c1, c2 = st.columns(2)
             R = c1.text_input("Recette R(x)", value="100*x - x**2")
@@ -242,7 +271,7 @@ def page_marginale():
                 st.subheader("Démarche détaillée")
                 afficher_rapport(marginal.rapport_profit(res))
                 st.subheader("Graphique — recette, coût et profit")
-                st.plotly_chart(marginal.figure_profit(res), width="stretch")
+                afficher_graphe(marginal.figure_profit(res), width="stretch")
     except ValueError as e:
         erreur(e)
     except Exception as e:  # noqa: BLE001
@@ -294,7 +323,7 @@ def page_lineaire():
             afficher_rapport(lineaire.rapport_texte(res))
             st.subheader("Graphique (domaine réalisable)")
             if res.statut == "optimal":
-                st.plotly_chart(lineaire.figure_domaine(res),
+                afficher_graphe(lineaire.figure_domaine(res),
                                 width="stretch")
             else:
                 erreur(f"Statut : {res.statut}")
@@ -346,7 +375,7 @@ def page_etude_cout():
     st.caption("Les deux courbes se croisent au minimum du coût moyen : "
                "c'est là que f(x*) = C'(x*).")
     try:
-        st.plotly_chart(etude_cout.figure(res), width="stretch")
+        afficher_graphe(etude_cout.figure(res), width="stretch")
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
