@@ -33,6 +33,11 @@ class ResultatDeuxVariables:
     points_critiques: list = field(default_factory=list)
 
 
+def _indice(n):
+    """Convertit un entier en chiffres indices (0 -> ₀, 12 -> ₁₂)."""
+    return str(n).translate(str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉"))
+
+
 def _est_reel(val):
     if val.is_real is True:
         return True
@@ -193,8 +198,8 @@ def rapport_texte(resultat):
     L.append(f"   ∂f/∂y = {r.gradient[1]} = 0")
     if r.points_critiques:
         L.append("   Solutions du système :")
-        for pc in r.points_critiques:
-            L.append(f"      • ({pc.point[0]}, {pc.point[1]})")
+        for i, pc in enumerate(r.points_critiques):
+            L.append(f"      • P{_indice(i)} = ({pc.point[0]}, {pc.point[1]})")
     else:
         L.append("   (aucun point critique réel)")
 
@@ -210,13 +215,13 @@ def rapport_texte(resultat):
     L.append("     • rt − s² < 0          ⟹ POINT COL (selle)")
     L.append("     • rt − s² = 0          ⟹ on ne peut pas conclure (test poussé)")
     if r.points_critiques:
-        for pc in r.points_critiques:
+        for i, pc in enumerate(r.points_critiques):
             x0, y0 = pc.point
             r0 = pc.f_xx
             s0 = sp.simplify(fxy.subs({x: x0, y: y0}))
             t0 = sp.simplify(fyy.subs({x: x0, y: y0}))
             L.append(
-                f"      • en ({x0}, {y0}) : r={r0}, s={s0}, t={t0}, "
+                f"      • P{_indice(i)} = ({x0}, {y0}) : r={r0}, s={s0}, t={t0}, "
                 f"rt−s² = {pc.determinant} ⟹ {pc.nature}"
             )
     else:
@@ -224,7 +229,7 @@ def rapport_texte(resultat):
 
     if r.points_critiques:
         L.append("\nCONCLUSION")
-        for pc in r.points_critiques:
-            L.append(f"   {pc.point} : {pc.nature}  (f = {pc.valeur})")
+        for i, pc in enumerate(r.points_critiques):
+            L.append(f"   P{_indice(i)} = {pc.point} : {pc.nature}  (f = {pc.valeur})")
     L.append("═" * 64)
     return "\n".join(L)

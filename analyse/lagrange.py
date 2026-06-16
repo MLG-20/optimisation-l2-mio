@@ -38,6 +38,11 @@ class ResultatLagrange:
     points_critiques: list = field(default_factory=list)
 
 
+def _indice(n):
+    """Convertit un entier en chiffres indices (0 -> ₀, 12 -> ₁₂)."""
+    return str(n).translate(str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉"))
+
+
 def _est_reel(val):
     if val.is_real is True:
         return True
@@ -170,18 +175,19 @@ def rapport_texte(resultat):
 
     L.append("\nÉTAPE 3 — Résolution du système ⟹ points candidats")
     if r.points_critiques:
-        for pc in r.points_critiques:
-            L.append(f"      • ({pc.point[0]}, {pc.point[1]})   avec λ = {pc.multiplicateur}")
+        for i, pc in enumerate(r.points_critiques):
+            L.append(f"      • P{_indice(i)} = ({pc.point[0]}, {pc.point[1]})"
+                     f"   avec λ = {pc.multiplicateur}")
     else:
         L.append("      (aucun point trouvé)")
 
     L.append("\nÉTAPE 4 — Nature : test de la HESSIENNE BORDÉE")
     L.append("   det(H̄) > 0 ⟹ MAXIMUM sous contrainte ; det(H̄) < 0 ⟹ MINIMUM.")
     if r.points_critiques:
-        for pc in r.points_critiques:
+        for i, pc in enumerate(r.points_critiques):
             L.append(
-                f"      • en ({pc.point[0]}, {pc.point[1]}) : det(H̄) = {pc.det_bordee} "
-                f"⟹ {pc.nature}   (f = {pc.valeur})"
+                f"      • P{_indice(i)} = ({pc.point[0]}, {pc.point[1]}) : "
+                f"det(H̄) = {pc.det_bordee} ⟹ {pc.nature}   (f = {pc.valeur})"
             )
 
     numeriques = []
@@ -300,8 +306,8 @@ def rapport_substitution(resultat):
     L.append("\nÉTAPE 3 — On optimise F : F'({t}) = 0")
     L.append(f"   F'({t}) = {dF}")
     if r.points_critiques:
-        for pc in r.points_critiques:
-            L.append(f"      • {t} donne le point ({pc.point[0]}, {pc.point[1]})")
+        for i, pc in enumerate(r.points_critiques):
+            L.append(f"      • P{_indice(i)} = ({pc.point[0]}, {pc.point[1]})")
     else:
         L.append("      (aucune solution réelle)")
 
@@ -310,12 +316,12 @@ def rapport_substitution(resultat):
     L.append("   F'' > 0 ⟹ minimum ; F'' < 0 ⟹ maximum.")
     if r.points_critiques:
         # On retrouve la valeur de la variable libre pour évaluer F''.
-        for pc in r.points_critiques:
+        for i, pc in enumerate(r.points_critiques):
             tv = pc.point[0] if t == r.variables[0] else pc.point[1]
             f2 = sp.simplify(d2F.subs(t, tv))
             L.append(
-                f"      • en ({pc.point[0]}, {pc.point[1]}) : F''({tv}) = {f2} "
-                f"⟹ {pc.nature}   (f = {pc.valeur})"
+                f"      • P{_indice(i)} = ({pc.point[0]}, {pc.point[1]}) : "
+                f"F''({tv}) = {f2} ⟹ {pc.nature}   (f = {pc.valeur})"
             )
     L.append("═" * 64)
     return "\n".join(L)
