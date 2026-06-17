@@ -71,9 +71,9 @@ Notation Python / SymPy : `**` puissance, `*` produit, `sin(x)`, `cos(x)`,
 
 ## Auteur
 
-**Mamadou Lamine Gueye** — développeur web. Étudiant en L2 MIO à l'Université
-de Thiès, j'ai créé cet outil pour aider mes cadets à **comprendre concrètement**
-l'optimisation.
+**Mamadou Lamine Gueye** — développeur web. J'ai créé cet outil pour aider les
+étudiants de L2 MIO (Université de Thiès) — mes cadets — à **comprendre
+concrètement** l'optimisation.
 
 ## Licence
 
