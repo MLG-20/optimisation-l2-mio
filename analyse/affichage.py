@@ -13,6 +13,25 @@ def _en_float(valeur):
         return None
 
 
+def _format_droite(pente, ordonnee):
+    """Formate une droite « a·x + b » proprement (x au lieu de 1x, etc.)."""
+    if pente == 1:
+        terme = "x"
+    elif pente == -1:
+        terme = "-x"
+    else:
+        terme = f"{pente}·x"
+    if ordonnee == 0:
+        return terme
+    try:
+        negatif = bool(ordonnee < 0)
+    except TypeError:
+        negatif = False
+    if negatif:
+        return f"{terme} - {-ordonnee}"
+    return f"{terme} + {ordonnee}"
+
+
 def figure_1d(resultat, marge=4.0, nb_points=1500):
     """Construit et renvoie la figure Plotly de f(x) (extrema + asymptotes)."""
     x = resultat.variable
@@ -81,7 +100,7 @@ def figure_1d(resultat, marge=4.0, nb_points=1500):
             fig.add_trace(go.Scatter(
                 x=xs, y=a * xs + b, mode="lines",
                 line=dict(dash="dash", color="gray"),
-                name=f"asymptote y={pente}x+{ordo}",
+                name=f"asymptote oblique : y = {_format_droite(pente, ordo)}",
             ))
 
     fig.update_layout(

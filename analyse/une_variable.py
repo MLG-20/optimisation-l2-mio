@@ -137,6 +137,15 @@ def _asymptotes(expr, x):
             except Exception:  # noqa: BLE001
                 pass
 
+    # Fusionne les obliques identiques (même droite en +∞ et -∞).
+    fusion = {}
+    for a, b, sens in res["obliques"]:
+        fusion.setdefault((a, b), []).append(sens)
+    res["obliques"] = [
+        (a, b, "±∞" if len(sens) == 2 else sens[0])
+        for (a, b), sens in fusion.items()
+    ]
+
     try:
         singularites = sp.singularities(expr, x, sp.S.Reals)
         if isinstance(singularites, sp.FiniteSet):
@@ -274,7 +283,14 @@ def rapport_texte(resultat):
             L.append(f"   ⟹ asymptote VERTICALE : x = {val}  (f y diverge)")
     if a.get("obliques"):
         for pente, ordo, sens in a["obliques"]:
-            L.append(f"   ⟹ asymptote OBLIQUE : y = {pente}·x + {ordo}  (en {sens})")
+            terme = "x" if pente == 1 else "-x" if pente == -1 else f"{pente}·x"
+            if ordo == 0:
+                droite = terme
+            elif ordo < 0:
+                droite = f"{terme} - {-ordo}"
+            else:
+                droite = f"{terme} + {ordo}"
+            L.append(f"   ⟹ asymptote OBLIQUE : y = {droite}  (en {sens})")
     if not any(a.values()):
         L.append("   ⟹ aucune asymptote")
 
