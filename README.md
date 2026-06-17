@@ -66,8 +66,13 @@ Notation Python / SymPy : `**` puissance, `*` produit, `sin(x)`, `cos(x)`,
 `x**2 + y**2 - 3*x*y`. La saisie « naturelle » est aussi acceptée :
 `√x`, `x²`, `2x`, `3xy`.
 
+## Auteur
+
+**Mamadou Lamine Gueye** — développeur web. Étudiant en L2 MIO à l'Université
+de Thiès, j'ai créé cet outil pour aider mes cadets à **comprendre concrètement**
+l'optimisation.
+
 ## Licence
 
 Projet **open source** sous licence **MIT** (voir [LICENSE](LICENSE)) : libre
-d'utilisation, de modification et de partage. Fait pour aider les étudiants à
-**comprendre concrètement** l'optimisation. 💚
+d'utilisation, de modification et de partage. 💚

@@ -745,6 +745,9 @@ def main():
         "Syntaxe des fonctions : `**` puissance, `*` produit, "
         "`sin(x)`, `cos(x)`, `exp(x)`, `log(x)`, `sqrt(x)`."
     )
+    st.sidebar.markdown("---")
+    st.sidebar.caption("👨‍💻 Développé par **Mamadou Lamine Gueye** — développeur web\n\n"
+                       "Open source (licence MIT) · pour les étudiants de MIO 💚")
     PAGES[choix]()
 
 
