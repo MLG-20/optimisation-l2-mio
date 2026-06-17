@@ -21,7 +21,8 @@ from analyse import (
     une_variable,
 )
 
-st.set_page_config(page_title="Optimisation — L2 MIO", page_icon="📐", layout="wide")
+st.set_page_config(page_title="Optimisation — Dr Gueye", page_icon="📐",
+                   layout="wide")
 
 
 def declarer_langue_francaise():
@@ -84,6 +85,152 @@ def erreur(msg):
     st.error(f"⚠️ {msg}")
 
 
+# --------------------------------------------------------------------------- #
+# Explications dynamiques des graphiques (lecture du résultat calculé)
+# --------------------------------------------------------------------------- #
+def _j(expr):
+    """Embellit une expression pour l'insérer dans un texte (sqrt → √, etc.)."""
+    return jolifier(str(expr))
+
+
+def expliquer(texte):
+    st.info("📖 **Comment lire ce graphique.** " + texte)
+
+
+def expl_une_variable(res):
+    parts = []
+    if res.points_critiques:
+        for pc in res.points_critiques:
+            parts.append(
+                f"En **x = {_j(pc.abscisse)}** la courbe atteint un **{pc.nature}** "
+                f"(f = {_j(pc.ordonnee)}), marqué par un point coloré.")
+    else:
+        parts.append("La courbe n'a aucun point critique réel : elle est monotone "
+                     "(toujours croissante ou décroissante) sur son domaine.")
+    a = res.asymptotes
+    asy = []
+    if a.get("verticales"):
+        asy.append("verticale(s) en " + ", ".join(f"x = {_j(v)}" for v in a["verticales"]))
+    if a.get("horizontales"):
+        asy.append("horizontale(s) " + ", ".join(f"y = {_j(v)}" for v, _ in a["horizontales"]))
+    if a.get("obliques"):
+        asy.append("oblique(s)")
+    if asy:
+        parts.append("Les pointillés gris sont les asymptotes : " + " ; ".join(asy) + ".")
+    expliquer(" ".join(parts))
+
+
+def expl_intervalle(res):
+    if not (res.minimum and res.maximum):
+        return
+    expliquer(
+        f"Sur l'intervalle, le **minimum absolu** vaut {_j(res.minimum.valeur)} "
+        f"en x = {_j(res.minimum.abscisse)} ({res.minimum.type}), et le "
+        f"**maximum absolu** {_j(res.maximum.valeur)} en x = {_j(res.maximum.abscisse)} "
+        f"({res.maximum.type}). Les ★ verte et rouge marquent ces deux points ; "
+        "compare bien les valeurs aux bornes et aux points critiques.")
+
+
+def expl_deux_variables(res):
+    if not res.points_critiques:
+        expliquer("Aucun point critique : la surface n'a ni creux ni sommet visible.")
+        return
+    lignes = []
+    for i, pc in enumerate(res.points_critiques):
+        indice = str(i).translate(str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉"))
+        if "minimum" in pc.nature:
+            lecture = "un **creux** (les couleurs s'éclaircissent autour)"
+        elif "maximum" in pc.nature:
+            lecture = "un **sommet** (les couleurs foncent autour)"
+        else:
+            lecture = "un **col** (ça monte dans une direction, descend dans l'autre)"
+        lignes.append(f"P{indice} = ({_j(pc.point[0])}, {_j(pc.point[1])}) : "
+                      f"{pc.nature} → {lecture}.")
+    expliquer("Sur la surface 3D et la carte de niveaux 2D :\n\n- " + "\n- ".join(lignes))
+
+
+def expl_contrainte(res):
+    pts = res.points_critiques
+    if not pts:
+        return
+    nums = []
+    for pc in pts:
+        try:
+            nums.append((float(pc.valeur), pc))
+        except (TypeError, ValueError):
+            pass
+    detail = ""
+    if nums:
+        vmax = max(nums, key=lambda t: t[0])[1]
+        vmin = min(nums, key=lambda t: t[0])[1]
+        detail = (f" Le **maximum** ({_j(vmax.valeur)}) est en "
+                  f"({_j(vmax.point[0])}, {_j(vmax.point[1])}) et le **minimum** "
+                  f"({_j(vmin.valeur)}) en ({_j(vmin.point[0])}, {_j(vmin.point[1])}).")
+    expliquer(
+        "Les points optimaux (★) sont exactement là où une **courbe de niveau de f** "
+        "touche (est tangente à) la **contrainte g = 0** (ligne rouge). En ces points, "
+        "les flèches **∇f (bleue)** et **∇g (rouge)** sont **parallèles** : c'est la "
+        "condition ∇f = λ·∇g." + detail)
+
+
+def expl_marginale(res):
+    if res.point is None:
+        expliquer("La courbe orange est la **fonction marginale** f'(x) : sa hauteur "
+                  "donne la pente de f(x) (bleue) en chaque point.")
+        return
+    expliquer(
+        f"La courbe orange est la **marginale** f'(x). En x = {_j(res.point)}, elle "
+        f"vaut {_j(res.valeur_marginale)} (★) : c'est la pente de f en ce point, donc "
+        "≈ l'effet d'**une unité supplémentaire**.")
+
+
+def expl_cout_moyen(res):
+    if res.quantite_optimale is None:
+        expliquer("Le coût moyen (bleu) et le coût marginal (orange) sont tracés ; "
+                  "le coût moyen n'a pas de minimum intérieur ici.")
+        return
+    expliquer(
+        f"Le **coût moyen** (bleu) est **minimal** en x = {_j(res.quantite_optimale)} "
+        f"(★, valeur {_j(res.cout_moyen_min)}). Remarque qu'à ce point précis il "
+        "**croise le coût marginal** (orange) : c'est la propriété coût moyen = coût "
+        "marginal au minimum.")
+
+
+def expl_profit(res):
+    if not res.quantites_optimales:
+        expliquer("On trace recette R(x), coût C(x) et profit P(x) = R − C ; "
+                  "aucun maximum de profit n'a été trouvé.")
+        return
+    q, val = res.quantites_optimales[0]
+    expliquer(
+        f"Le **profit** (bleu) est **maximal** en x = {_j(q)} (★, P = {_j(val)}). "
+        "C'est là où l'**écart entre la recette (vert) et le coût (rouge) est le plus "
+        "grand**, c'est-à-dire où recette marginale = coût marginal.")
+
+
+def expl_etude_cout(res):
+    if res.quantite_optimale is None:
+        return
+    extra = (" À ce point, les deux courbes **se croisent** : f(x*) = C'(x*)."
+             if res.egalite_verifiee else "")
+    expliquer(
+        f"Le **coût moyen** (bleu) est minimal en x = {_j(res.quantite_optimale)} "
+        f"(★, valeur {_j(res.cout_moyen_min)}), comparé au **coût marginal** "
+        f"(orange).{extra}")
+
+
+def expl_lineaire(res):
+    if res.statut != "optimal" or res.optimum is None:
+        return
+    o = res.optimum
+    expliquer(
+        f"La **zone bleue** est le domaine réalisable (toutes les contraintes "
+        f"respectées). L'**optimum** (★) est au sommet ({_j(o.point[0])}, "
+        f"{_j(o.point[1])}) avec z* = {_j(o.valeur)} : c'est le coin du polygone qui "
+        f"pousse l'objectif le plus loin. Contraintes saturées : "
+        f"{', '.join(o.contraintes_saturees)}.")
+
+
 def champ_exemples(label, cle, exemples, defaut, help=None):
     """Champ texte précédé d'un menu d'exemples qui le remplit dynamiquement.
 
@@ -127,6 +274,7 @@ def page_une_variable():
     st.subheader("Graphique")
     try:
         afficher_graphe(affichage.figure_1d(res), width="stretch")
+        expl_une_variable(res)
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
@@ -154,6 +302,7 @@ def page_intervalle():
     st.subheader("Graphique sur [a, b]")
     try:
         afficher_graphe(affichage.figure_intervalle(res), width="stretch")
+        expl_intervalle(res)
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
@@ -189,6 +338,7 @@ def page_deux_variables():
                "un sommet ; point col = courbes en forme de selle qui se croisent.")
     try:
         afficher_graphe(affichage.figure_contour_2d(res), width="stretch")
+        expl_deux_variables(res)
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
@@ -236,6 +386,7 @@ def page_contrainte():
                "PARALLÈLES : c'est exactement la condition ∇f = λ·∇g de Lagrange.")
     try:
         afficher_graphe(affichage.figure_contrainte(res_lagr), width="stretch")
+        expl_contrainte(res_lagr)
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
@@ -254,6 +405,7 @@ def page_marginale():
                 afficher_rapport(marginal.rapport_marginal(res))
                 st.subheader("Graphique — f(x) et sa marginale f'(x)")
                 afficher_graphe(marginal.figure_marginale(res), width="stretch")
+                expl_marginale(res)
         elif sous == "Coût moyen":
             C = st.text_input("Coût C(x)", value="x**2 + 16*x + 256")
             if C.strip():
@@ -262,6 +414,7 @@ def page_marginale():
                 afficher_rapport(marginal.rapport_cout_moyen(res))
                 st.subheader("Graphique — coût moyen et coût marginal")
                 afficher_graphe(marginal.figure_cout_moyen(res), width="stretch")
+                expl_cout_moyen(res)
         else:
             c1, c2 = st.columns(2)
             R = c1.text_input("Recette R(x)", value="100*x - x**2")
@@ -272,6 +425,7 @@ def page_marginale():
                 afficher_rapport(marginal.rapport_profit(res))
                 st.subheader("Graphique — recette, coût et profit")
                 afficher_graphe(marginal.figure_profit(res), width="stretch")
+                expl_profit(res)
     except ValueError as e:
         erreur(e)
     except Exception as e:  # noqa: BLE001
@@ -325,6 +479,7 @@ def page_lineaire():
             if res.statut == "optimal":
                 afficher_graphe(lineaire.figure_domaine(res),
                                 width="stretch")
+                expl_lineaire(res)
             else:
                 erreur(f"Statut : {res.statut}")
         elif methode == "Simplexe":
@@ -376,6 +531,7 @@ def page_etude_cout():
                "c'est là que f(x*) = C'(x*).")
     try:
         afficher_graphe(etude_cout.figure(res), width="stretch")
+        expl_etude_cout(res)
     except Exception as e:  # noqa: BLE001
         erreur(f"Tracé impossible : {e}")
 
@@ -519,8 +675,8 @@ def main():
     if not st.session_state.get("_langue_ok"):
         declarer_langue_francaise()
         st.session_state["_langue_ok"] = True
-    st.sidebar.title("📐 Optimisation L2 MIO")
-    st.sidebar.caption("Université de Thiès — boîte à outils du cours")
+    st.sidebar.title("📐 Optimisation : cours, TD et tp de Dr Gueye")
+    st.sidebar.caption("Université de Thiès — L2 MIO — boîte à outils du cours")
     choix = st.sidebar.radio("Outils", list(PAGES.keys()))
     st.sidebar.markdown("---")
     st.sidebar.info(
