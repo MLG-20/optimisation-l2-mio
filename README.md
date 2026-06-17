@@ -4,6 +4,9 @@ Outils de calcul et de visualisation couvrant le cours d'optimisation :
 analyse de fonctions, optimisation libre / sous contrainte / bornée,
 analyse marginale, et programmation linéaire (graphique, simplexe, dualité).
 
+> ⚠️ **Outil pédagogique** : pensez à toujours vérifier vos résultats. Il aide à
+> comprendre la démarche, il ne remplace pas votre raisonnement.
+
 ## Installation
 
 ```bash

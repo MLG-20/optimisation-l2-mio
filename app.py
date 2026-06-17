@@ -781,6 +781,7 @@ def page_a_quoi_ca_sert():
 # Navigation
 # --------------------------------------------------------------------------- #
 PAGES = {
+    "👤 À propos de Dr Gueye": page_a_propos_prof,
     "📈 Une variable  f(x)": page_une_variable,
     "📏 Intervalle [a, b]": page_intervalle,
     "🧊 Deux variables  f(x, y)": page_deux_variables,
@@ -789,7 +790,6 @@ PAGES = {
     "🏭 Étude de coût (Feuille 1)": page_etude_cout,
     "📊 Programmation linéaire": page_lineaire,
     "🌍 À quoi ça sert ?": page_a_quoi_ca_sert,
-    "👤 À propos de Dr Gueye": page_a_propos_prof,
     "❓ Aide / Mode d'emploi": page_aide,
 }
 
@@ -802,6 +802,7 @@ def main():
         st.session_state["_langue_ok"] = True
     st.sidebar.title("📐 Optimisation : cours, TD et tp de Dr Gueye")
     st.sidebar.caption("Université de Thiès — L2 MIO — boîte à outils du cours")
+    st.sidebar.warning("⚠️ Outil **pédagogique** : vérifiez toujours vos résultats.")
     choix = st.sidebar.radio("Outils", list(PAGES.keys()))
     st.sidebar.markdown("---")
     st.sidebar.info(
