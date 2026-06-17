@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 
 import sympy as sp
 
-from . import une_variable
+from . import parsing, une_variable
 
 
 @dataclass
@@ -56,12 +56,7 @@ def _est_reel(val):
 
 
 def _sympify(expression, locals_):
-    if isinstance(expression, str):
-        try:
-            return sp.sympify(expression, locals=locals_)
-        except (sp.SympifyError, SyntaxError, TypeError) as err:
-            raise ValueError(f"Expression invalide : {expression!r}") from err
-    return expression
+    return parsing.lire(expression, locals_)
 
 
 def _hessienne_bordee(L, contrainte, x, y, lam):

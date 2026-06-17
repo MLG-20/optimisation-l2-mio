@@ -8,6 +8,7 @@ from . import (
     lagrange,
     lineaire,
     marginal,
+    parsing,
     simplexe,
     une_variable,
 )
@@ -20,6 +21,7 @@ __all__ = [
     "lagrange",
     "lineaire",
     "marginal",
+    "parsing",
     "simplexe",
     "une_variable",
 ]

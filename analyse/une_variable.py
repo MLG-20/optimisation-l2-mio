@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 import sympy as sp
 from sympy.calculus.util import continuous_domain
 
+from . import parsing
+
 
 # --------------------------------------------------------------------------- #
 # Structures de données
@@ -157,13 +159,7 @@ def analyser(expression, variable=None):
     """
     x = variable or sp.Symbol("x", real=True)
 
-    if isinstance(expression, str):
-        try:
-            expr = sp.sympify(expression, locals={"x": x})
-        except (sp.SympifyError, SyntaxError, TypeError) as err:
-            raise ValueError(f"Expression invalide : {expression!r}") from err
-    else:
-        expr = expression
+    expr = parsing.lire(expression, {"x": x})
 
     symboles_libres = expr.free_symbols - {x}
     if symboles_libres:
@@ -305,13 +301,7 @@ def optimiser_sur_intervalle(expression, a, b, variable=None):
     """
     x = variable or sp.Symbol("x", real=True)
 
-    if isinstance(expression, str):
-        try:
-            expr = sp.sympify(expression, locals={"x": x})
-        except (sp.SympifyError, SyntaxError, TypeError) as err:
-            raise ValueError(f"Expression invalide : {expression!r}") from err
-    else:
-        expr = expression
+    expr = parsing.lire(expression, {"x": x})
 
     a, b = sp.sympify(a), sp.sympify(b)
     if a > b:

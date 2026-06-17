@@ -16,6 +16,8 @@ import numpy as np
 import plotly.graph_objects as go
 import sympy as sp
 
+from . import parsing
+
 
 @dataclass
 class ResultatMarginal:
@@ -49,12 +51,7 @@ class ResultatProfit:
 
 
 def _sympify(expression, x):
-    if isinstance(expression, str):
-        try:
-            return sp.sympify(expression, locals={"x": x})
-        except (sp.SympifyError, SyntaxError, TypeError) as err:
-            raise ValueError(f"Expression invalide : {expression!r}") from err
-    return expression
+    return parsing.lire(expression, {"x": x})
 
 
 def _positifs_reels(equation, x):

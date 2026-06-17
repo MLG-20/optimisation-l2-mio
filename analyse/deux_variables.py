@@ -14,6 +14,8 @@ from dataclasses import dataclass, field
 
 import sympy as sp
 
+from . import parsing
+
 
 @dataclass
 class PointCritique2D:
@@ -128,13 +130,7 @@ def analyser(expression, variables=None):
     else:
         x, y = variables
 
-    if isinstance(expression, str):
-        try:
-            expr = sp.sympify(expression, locals={"x": x, "y": y})
-        except (sp.SympifyError, SyntaxError, TypeError) as err:
-            raise ValueError(f"Expression invalide : {expression!r}") from err
-    else:
-        expr = expression
+    expr = parsing.lire(expression, {"x": x, "y": y})
 
     symboles_libres = expr.free_symbols - {x, y}
     if symboles_libres:
