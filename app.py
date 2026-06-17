@@ -654,6 +654,68 @@ def page_aide():
             "tu peux donc vérifier tes exercices étape par étape.")
 
 
+# Cursus de l'enseignant — il suffira de remplir ce dictionnaire dès réception
+# du CV (laisser "" pour masquer une rubrique).
+INFOS_PROF = {
+    "nom": "Dr Gueye",
+    "titre": "",            # ex. "Enseignant-chercheur en Optimisation, UFR SES"
+    "etablissement": "Université de Thiès — UFR SES, Département de MIO",
+    "photo_url": "",        # ex. "https://..." (optionnel)
+    "presentation": "",     # quelques phrases de présentation
+    "formation": [],        # ex. ["Doctorat en ... (année, université)", ...]
+    "enseignement": [],     # ex. ["Optimisation (L2 MIO)", "Recherche opérationnelle", ...]
+    "recherche": [],        # ex. ["Programmation linéaire", "Optimisation convexe", ...]
+    "publications": [],     # ex. ["Titre, revue, année", ...]
+    "contact": "",          # ex. "email / bureau"
+}
+
+
+def page_a_propos_prof():
+    p = INFOS_PROF
+    st.header(f"👤 À propos de {p['nom']}")
+
+    haut = st.columns([1, 3]) if p.get("photo_url") else None
+    if haut:
+        with haut[0]:
+            st.image(p["photo_url"], width="stretch")
+        zone = haut[1]
+    else:
+        zone = st
+
+    if p.get("titre"):
+        zone.markdown(f"**{p['titre']}**")
+    if p.get("etablissement"):
+        zone.caption(p["etablissement"])
+    if p.get("presentation"):
+        zone.markdown(p["presentation"])
+
+    def section(titre, items):
+        if items:
+            st.subheader(titre)
+            for it in items:
+                st.markdown(f"- {it}")
+
+    section("🎓 Formation", p.get("formation", []))
+    section("📚 Enseignement", p.get("enseignement", []))
+    section("🔬 Domaines de recherche", p.get("recherche", []))
+    section("📝 Publications", p.get("publications", []))
+    if p.get("contact"):
+        st.subheader("✉️ Contact")
+        st.markdown(p["contact"])
+
+    # Si rien n'est encore rempli, on affiche un message d'attente.
+    rempli = any([p.get(k) for k in ("titre", "presentation", "formation",
+                                     "enseignement", "recherche", "publications")])
+    if not rempli:
+        st.info("📌 Cette page présentera le cursus de l'enseignant. "
+                "Le contenu sera complété dès réception de son CV.")
+
+    st.markdown("---")
+    st.caption("Cette application est conçue et développée par "
+               "**Mamadou Lamine Gueye** (développeur web). Le cours, les TD et les "
+               "TP sont de Dr Gueye. Projet open source — licence MIT.")
+
+
 def page_a_quoi_ca_sert():
     st.header("🌍 À quoi ça sert ? (expliqué très simplement)")
     st.markdown(
@@ -727,6 +789,7 @@ PAGES = {
     "🏭 Étude de coût (Feuille 1)": page_etude_cout,
     "📊 Programmation linéaire": page_lineaire,
     "🌍 À quoi ça sert ?": page_a_quoi_ca_sert,
+    "👤 À propos de Dr Gueye": page_a_propos_prof,
     "❓ Aide / Mode d'emploi": page_aide,
 }
 
