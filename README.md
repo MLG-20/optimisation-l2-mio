@@ -63,4 +63,11 @@ pytest -q
 
 Notation Python / SymPy : `**` puissance, `*` produit, `sin(x)`, `cos(x)`,
 `exp(x)`, `log(x)`, `sqrt(x)`. Exemples : `x**3 - 3*x`, `(x**2-1)/(x-2)`,
-`x**2 + y**2 - 3*x*y`.
+`x**2 + y**2 - 3*x*y`. La saisie « naturelle » est aussi acceptée :
+`√x`, `x²`, `2x`, `3xy`.
+
+## Licence
+
+Projet **open source** sous licence **MIT** (voir [LICENSE](LICENSE)) : libre
+d'utilisation, de modification et de partage. Fait pour aider les étudiants à
+**comprendre concrètement** l'optimisation. 💚

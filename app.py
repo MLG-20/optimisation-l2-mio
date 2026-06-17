@@ -654,6 +654,67 @@ def page_aide():
             "tu peux donc vérifier tes exercices étape par étape.")
 
 
+def page_a_quoi_ca_sert():
+    st.header("🌍 À quoi ça sert ? (expliqué très simplement)")
+    st.markdown(
+        "**L'optimisation, en une phrase :** c'est *chercher le **meilleur choix** "
+        "possible avec ce qu'on a.* On le fait tous les jours sans le savoir !")
+
+    st.subheader("🍋 L'exemple le plus simple : vendre de la limonade")
+    st.markdown(
+        "Imagine un enfant qui vend de la limonade :\n"
+        "- S'il vend **trop cher** → personne n'achète → il gagne peu.\n"
+        "- S'il vend **trop bas** → tout le monde achète, mais il gagne peu sur chaque verre.\n"
+        "- Il existe **UN prix parfait au milieu** qui rapporte le plus d'argent.\n\n"
+        "👉 Trouver ce prix parfait, **c'est exactement** l'outil "
+        "**« Une variable f(x) »** : la courbe monte, atteint un sommet (le meilleur), "
+        "puis redescend.")
+
+    st.subheader("🎂 « Est-ce que ça vaut le coup d'en faire un de plus ? »")
+    st.markdown(
+        "Tu fabriques un gâteau de plus : il te **coûte** 500 F et te **rapporte** 800 F. "
+        "Tu gagnes → fais-le ! Mais si le suivant coûte 900 F et rapporte 800 F, "
+        "**arrête**.\n\n"
+        "👉 C'est l'outil **« Analyse marginale »** : il dit *jusqu'où* il est rentable "
+        "de produire.")
+
+    st.subheader("💰 Choisir quand l'argent est limité")
+    st.markdown(
+        "Tu as **1000 F** en poche. Tu veux le maximum de **bonbons** ET de **jus**… "
+        "mais ton argent est limité. Quel est le meilleur mélange ?\n\n"
+        "👉 C'est l'outil **« Sous contrainte (Lagrange) »** : optimiser **avec une "
+        "limite** (ici, le budget). La vie est pleine de limites : temps, argent, "
+        "place…")
+
+    st.subheader("🌾 Planifier pour gagner le plus (le cas des entreprises)")
+    st.markdown(
+        "Un paysan a **un champ** et **de l'eau** en quantité limitée. Combien planter "
+        "de **mil** et d'**arachide** pour gagner le plus d'argent ? Il y a des milliers "
+        "de combinaisons… l'ordinateur trouve **la meilleure** en une seconde.\n\n"
+        "👉 C'est la **« Programmation linéaire »**. Les **mêmes calculs** servent à :\n"
+        "- 🚚 **Amazon / les bus / DHL** : organiser les livraisons au moindre coût\n"
+        "- ✈️ **Les compagnies aériennes** : placer les avions et les équipages\n"
+        "- 🏭 **Les usines** : mélanger les matières premières le moins cher possible\n"
+        "- 🏥 **Les hôpitaux** : faire les plannings des gardes")
+
+    st.subheader("📱 Et dans ce que tu vois tous les jours")
+    st.markdown(
+        "- 🗺️ **Google Maps / Yango** : trouver le **chemin le plus court** = optimiser.\n"
+        "- 🤖 **L'intelligence artificielle** (ChatGPT, traduction…) **apprend** en "
+        "**réduisant ses erreurs** petit à petit — c'est de l'optimisation avec des "
+        "dérivées (ta Feuille 2 !).\n"
+        "- ⚡ **Senelec** : produire l'électricité au coût le plus bas.\n"
+        "- 📈 **La banque / la finance** : placer l'argent pour gagner le plus avec le "
+        "moins de risque.")
+
+    st.success(
+        "🎓 **L'idée à retenir :** au lieu de **deviner**, l'optimisation te laisse "
+        "**calculer** le meilleur choix. C'est un vrai super-pouvoir pour décider — "
+        "en business, en ingénierie, et même dans la vie de tous les jours.")
+    st.caption("Cette application est gratuite et open source (licence MIT) : "
+               "utilise-la, partage-la, et améliore-la. 💚")
+
+
 # --------------------------------------------------------------------------- #
 # Navigation
 # --------------------------------------------------------------------------- #
@@ -665,6 +726,7 @@ PAGES = {
     "💰 Analyse marginale": page_marginale,
     "🏭 Étude de coût (Feuille 1)": page_etude_cout,
     "📊 Programmation linéaire": page_lineaire,
+    "🌍 À quoi ça sert ?": page_a_quoi_ca_sert,
     "❓ Aide / Mode d'emploi": page_aide,
 }
 
